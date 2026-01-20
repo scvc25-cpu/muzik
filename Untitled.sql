@@ -1,50 +1,48 @@
--- 데이터 베이스 생성
-CREATE DATABASE oz_db_test;
--- 데이터 베이스 사용
-USE oz_db_test;
+USE Pet_hotel;  -- pet_hotel 스키마를 사용
 
--- employees 테이블 생성
-CREATE TABLE employees(
-	id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    position VARCHAR(100),
-    salary DECIMAL(10, 2)
+-- 동물 주인 테이블
+CREATE TABLE pet_owner(
+	owner_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(10) NOT NULL,  -- 주인 이름
+    email VARCHAR(255),  -- 이메일(예약시 이메일로 체크)
+    phone VARCHAR(20)  -- 전화번호(예약시 문자메시지로 2중체크)
 );
 
--- 직원 데이터 employees 테이블에 추가
-INSERT INTO employees (name, position, salary)
-VALUES
-('혜린', 'PM', 90000),
-('은우','Frontend', 80000),
-('가을','Backend', 92000),
-('지수','Frontend', 78000),
-('민혁','Frontend', 96000),
-('하은','Backend', 130000);
+-- 동물 테이블을 생성
+CREATE TABLE pet(
+	pet_id INT PRIMARY KEY AUTO_INCREMENT,
+    owner_id INT NOT NULL,
+    name VARCHAR(10), -- 동물 이름
+    species VARCHAR(10), -- 동물 종
+    FOREIGN KEY (owner_id) REFERENCES pet_owner(owner_id)
+);
 
--- 모든 직원의 연봉 및 정보 조회
-SELECT * FROM employees;
+-- 객실 테이블
+CREATE TABLE rooms(
+	room_id INT PRIMARY KEY AUTO_INCREMENT,
+    roomnumber INT NOT NULL UNIQUE, -- 방 번호 고유번호로 만들어야 겹치지 않게 만들 수 있음
+    roomtype VARCHAR(50),  -- 방 타입(여러가지의 방의 종류가 나올 수 있음)
+    pricePerNight DECIMAL(10, 2) NOT NULL -- (하룻밤 가격)
+);
 
--- Frontend 직책을 가진 인원 중 연봉이 90000 이하인 직원 조회
-SELECT name, salary 
-FROM employees 
-WHERE position = 'Frontend' AND salary <= 90000;
+-- 예약 테이블
+CREATE TABLE reservation(
+  reservation_id INT PRIMARY KEY AUTO_INCREMENT,
+  pet_id INT NOT NULL, -- 예약된 동물 이름 id
+  owner_id INT NOT NULL, -- 예약된 동물 주인 id
+  room_id INT NOT NULL, -- 예약된 객실 확인하는 id
+  checkInDate DATE NOT NULL,  -- 체크인 날짜 확인
+  checkOutDate DATE NOT NULL,  -- 체크아웃 날짜 확인
+  FOREIGN KEY (pet_id) REFERENCES pet(pet_id),
+  FOREIGN KEY (owner_id) REFERENCES pet_owner(owner_id),
+  FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
 
--- PM 직책을 가진 직원의 연봉 인상 및 결과 확인
-UPDATE employees
-SET salary = salary * 1.10
-WHERE position = 'PM';
-SELECT * FROM employees WHERE position = 'PM';
-
--- 모든 Backend 직책을 가진 직원의 연봉 인상
-UPDATE employees
-SET salary = salary * 1.05
-WHERE position = 'Backend';
-
--- 민혁 사원의 데이터 삭제
-DELETE FROM employees WHERE name = '민혁';
-
--- 모든 직원을 position별로 그룹화 시킨 뒤 각 직책의 평균 연봉 계산
-SELECT position, AVG(salary) AS average_salary FROM employees GROUP BY position;
-
--- employees 테이블 삭제
-DROP TABLE employees;
+-- 서비스 테이블
+CREATE TABLE service (
+  service_id INT PRIMARY KEY AUTO_INCREMENT,
+  reservation_id INT NOT NULL,  -- 예약자 id
+  servicename VARCHAR(100), -- 예약 가능한 혹은 가능한 서비스 이름
+  serviceprice DECIMAL(10, 2) NOT NULL,  -- 서비스 가격
+  FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id)
+);
