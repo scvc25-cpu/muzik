@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="/create">리뷰 작성</a>
+<ul>
+{% for r in reviews %}
+  <li>
+    <a href="/review/{{ r.id }}">
+      [{{ r.category }}] {{ r.title }} ⭐ {{ r.rating }}
+    </a>
+  </li>
+{% endfor %}
+</ul>
+{% endblock %}

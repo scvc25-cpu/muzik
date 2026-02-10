@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ review.title }}</h2>
+<p>구분: {{ review.category }}</p>
+<p>평점: ⭐ {{ review.rating }}</p>
+<p>{{ review.content }}</p>
+<a href="/">목록</a>
+{% endblock %}
